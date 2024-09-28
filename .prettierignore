@@ -1,0 +1,5 @@
+# Ignore all Go files
+*.go
+
+# Ignore all Markdown files in vendor directory
+vendor/**/*.md
