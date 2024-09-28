@@ -11,13 +11,16 @@ import (
 )
 
 func main() {
+	// loads env file
 	godotenv.Load(".env")
 
 	portString := os.Getenv("PORT")
 	if portString == "" {
 		log.Fatal("PORT not defined")
 	}
+
 	router := chi.NewRouter()
+	// rules for requests
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -32,8 +35,10 @@ func main() {
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
 
+	// makes link something like localhost:PORT/v1/endpoint
 	router.Mount("/v1", v1Router)
 
+	// server ready fpr requests
 	srv := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,
