@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -8,7 +9,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/paulvinuez30/rssagg/internal/database"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	// loads env file
@@ -19,6 +26,18 @@ func main() {
 		log.Fatal("PORT not defined")
 	}
 
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL not defined")
+	}
+	conn, err := sql.Open("postgress", dbURL)
+	if err != nil {
+		log.Fatal("No connection to database", err)
+	}
+
+	apiCfg := apiConfig{
+		DB: database.New(conn),
+	}
 	router := chi.NewRouter()
 	// rules for requests
 	router.Use(cors.Handler(cors.Options{
@@ -34,11 +53,12 @@ func main() {
 
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	v1Router.Post("/users", apiCfg.handlerCreateUser)
 
 	// makes link something like localhost:PORT/v1/endpoint
 	router.Mount("/v1", v1Router)
 
-	// server ready fpr requests
+	// server ready for requests
 	srv := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,
