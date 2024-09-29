@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/paulvinuez30/rssagg/internal/database"
+	"github.com/paulvinueza30/rssagg/internal/database"
 )
 
 type apiConfig struct {
@@ -30,7 +30,7 @@ func main() {
 	if dbURL == "" {
 		log.Fatal("DB_URL not defined")
 	}
-	conn, err := sql.Open("postgress", dbURL)
+	conn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("No connection to database", err)
 	}
@@ -64,7 +64,7 @@ func main() {
 		Addr:    ":" + portString,
 	}
 	log.Printf("Server starting on port %v", portString)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
